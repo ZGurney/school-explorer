@@ -1,0 +1,27 @@
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
+# Environment
+.env
+
+# Data
+data/raw/
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+
+# Tooling
+.claude/
+.DS_Store
+
+# Database
+*.sqlite
+*.db

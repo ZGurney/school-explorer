@@ -1,0 +1,45 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["school_explorer"]
+
+[project]
+name = "school-explorer"
+version = "0.1.0"
+description = "London schools data explorer"
+requires-python = ">=3.11"
+dependencies = [
+    "sqlalchemy>=2.0",
+    "alembic>=1.13",
+    "psycopg2-binary>=2.9",       # switch to psycopg[binary]>=3 when hosting
+    "pandas>=2.2",
+    "requests>=2.31",
+    "beautifulsoup4>=4.12",
+    "lxml>=5.0",                   # faster HTML parser for bs4
+    "python-dotenv>=1.0",
+    "pydantic-settings>=2.0",
+    "click>=8.1",
+    "rich>=13.0",
+    "openpyxl>=3.1",               # for XLSX/ODS reading
+    "odfpy>=1.4",                  # pandas ODS support (Ofsted publishes .ods)
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+    "httpx>=0.27",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-postgresql",
+    "ruff",
+    "mypy",
+]
+
+[project.scripts]
+school-etl = "scripts.run_etl:cli"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
