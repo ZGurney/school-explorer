@@ -25,9 +25,14 @@ def _build_where(
     borough: Optional[str],
     phase: Optional[str],
     establishment_group: Optional[str],
+    establishment_groups: Optional[str],
     has_sixth_form: Optional[bool],
     is_selective: Optional[bool],
     gender: Optional[str],
+    faith_only: Optional[bool],
+    lat: Optional[float],
+    lng: Optional[float],
+    radius_km: float,
 ) -> tuple[str, dict]:
     clauses = []
     params: dict = {}
@@ -44,6 +49,11 @@ def _build_where(
     if establishment_group:
         clauses.append("establishment_group = :establishment_group")
         params["establishment_group"] = establishment_group
+    if establishment_groups:
+        groups = [g.strip() for g in establishment_groups.split(",") if g.strip()]
+        if groups:
+            clauses.append("establishment_group = ANY(:establishment_groups)")
+            params["establishment_groups"] = groups
     if has_sixth_form is not None:
         clauses.append("has_sixth_form = :has_sixth_form")
         params["has_sixth_form"] = has_sixth_form
@@ -53,6 +63,23 @@ def _build_where(
     if gender:
         clauses.append("gender = :gender")
         params["gender"] = gender
+    if faith_only is True:
+        clauses.append("""
+            religious_character IS NOT NULL
+            AND religious_character <> ''
+            AND religious_character NOT IN ('None', 'Does not apply', 'No religious character')
+        """)
+    if lat is not None and lng is not None:
+        clauses.append("""
+            lat IS NOT NULL AND lng IS NOT NULL AND
+            6371 * acos(LEAST(1.0,
+                cos(radians(:lat)) * cos(radians(lat)) * cos(radians(lng) - radians(:lng)) +
+                sin(radians(:lat)) * sin(radians(lat))
+            )) <= :radius_km
+        """)
+        params["lat"] = lat
+        params["lng"] = lng
+        params["radius_km"] = radius_km
 
     where = ("WHERE " + " AND ".join(clauses)) if clauses else ""
     return where, params
@@ -88,16 +115,41 @@ def list_schools(
     has_sixth_form: Optional[bool] = Query(None),
     is_selective: Optional[bool] = Query(None),
     gender: Optional[str] = Query(None),
+    faith_only: Optional[bool] = Query(None),
+    establishment_groups: Optional[str] = Query(None),
+    lat: Optional[float] = Query(None),
+    lng: Optional[float] = Query(None),
+    radius_km: float = Query(2.0, gt=0, le=50),
     sort_by: Optional[str] = Query(None),
 ):
-    where, params = _build_where(q, borough, phase, establishment_group, has_sixth_form, is_selective, gender)
-    order = _SORTABLE.get(sort_by or "", _SORTABLE["name"])
+    has_location = lat is not None and lng is not None
+    where, params = _build_where(
+        q,
+        borough,
+        phase,
+        establishment_group,
+        establishment_groups,
+        has_sixth_form,
+        is_selective,
+        gender,
+        faith_only,
+        lat,
+        lng,
+        radius_km,
+    )
+    order = "distance_km ASC NULLS LAST, name ASC" if has_location and not sort_by else _SORTABLE.get(sort_by or "", _SORTABLE["name"])
+    distance_col = """,
+        6371 * acos(LEAST(1.0,
+            cos(radians(:lat)) * cos(radians(lat)) * cos(radians(lng) - radians(:lng)) +
+            sin(radians(:lat)) * sin(radians(lat))
+        )) AS distance_km
+    """ if has_location else ", NULL::float AS distance_km"
 
     count_sql = text(f"SELECT COUNT(*) FROM school_summary_latest {where}")
     total = db.execute(count_sql, params).scalar() or 0
 
     data_sql = text(f"""
-        SELECT {_SUMMARY_COLS}
+        SELECT {_SUMMARY_COLS}{distance_col}
         FROM school_summary_latest
         {where}
         ORDER BY {order}

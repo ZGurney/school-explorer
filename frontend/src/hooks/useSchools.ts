@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import api from '../api/client'
-import type { Borough, PaginatedSchools, SchoolDetail, SchoolFilters } from '../api/types'
+import type { BenchmarkSummary, Borough, PaginatedSchools, SchoolDetail, SchoolFilters } from '../api/types'
 
 export function useSchools(filters: SchoolFilters) {
   return useQuery<PaginatedSchools>({
@@ -35,5 +35,13 @@ export function useBoroughs() {
     queryKey: ['boroughs'],
     queryFn: () => api.get('/boroughs').then(r => r.data),
     staleTime: Infinity,
+  })
+}
+
+export function useBenchmarks() {
+  return useQuery<BenchmarkSummary>({
+    queryKey: ['benchmarks'],
+    queryFn: () => api.get('/benchmarks').then(r => r.data),
+    staleTime: 24 * 60 * 60 * 1000,
   })
 }

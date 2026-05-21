@@ -29,6 +29,7 @@ export interface SchoolSummary {
   ks2_suppressed: boolean | null
   total_pupils: number | null
   pct_fsm6: number | null
+  distance_km: number | null
 }
 
 export interface InspectionRecord {
@@ -148,6 +149,7 @@ export interface SchoolDetail extends SchoolSummary {
   locality: string | null
   town: string | null
   website: string | null
+  telephone: string | null
   headteacher_name: string | null
   open_date: string | null
   capacity: number | null
@@ -207,7 +209,20 @@ export interface SchoolFilters {
   has_sixth_form?: boolean
   is_selective?: boolean
   gender?: string
+  faith_only?: boolean
+  establishment_groups?: string
+  lat?: number
+  lng?: number
+  radius_km?: number
   sort_by?: string
   page?: number
   page_size?: number
+}
+
+export interface BenchmarkSummary {
+  ks2_pct_expected_rwm: number | null
+  ks4_attainment_8: number | null
+  ks4_progress_8: number | null
+  ks4_pct_grade5_english_maths: number | null
+  ks5_avg_points: number | null
 }

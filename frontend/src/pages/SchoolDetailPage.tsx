@@ -7,6 +7,7 @@ import HistoryTab from '../components/detail/HistoryTab'
 import OverviewTab from '../components/detail/OverviewTab'
 import OfstedBadge from '../components/OfstedBadge'
 import { useCompareContext } from '../context/CompareContext'
+import { useShortlistContext } from '../context/ShortlistContext'
 import { useSchool } from '../hooks/useSchools'
 
 const TABS = ['Overview', 'Academic results', 'Destinations', 'Context', 'History'] as const
@@ -17,6 +18,7 @@ export default function SchoolDetailPage() {
   const { data, isLoading, isError } = useSchool(urn ? Number(urn) : undefined)
   const [tab, setTab] = useState<Tab>('Overview')
   const { toggle, isSelected } = useCompareContext()
+  const shortlist = useShortlistContext()
 
   if (isLoading) return <div className="page loading">Loading…</div>
   if (isError || !data) return (
@@ -27,6 +29,9 @@ export default function SchoolDetailPage() {
   )
 
   const selected = isSelected(data.urn)
+  const saved = shortlist.isSaved(data.urn)
+  const dataYears = [data.ks2_year, data.ks4_year, data.ks5_year].filter(Boolean).sort()
+  const dataYear = dataYears[dataYears.length - 1]
 
   return (
     <div className="page" style={{ paddingTop: 20 }}>
@@ -38,10 +43,21 @@ export default function SchoolDetailPage() {
           <div style={{ color: 'var(--gray-500)', fontSize: 14, marginTop: 6 }}>
             {[data.la_name, data.phase, data.postcode].filter(Boolean).join(' · ')}
           </div>
+          {dataYear && (
+            <div style={{ color: 'var(--gray-400)', fontSize: 12, marginTop: 5 }}>
+              Data: {dataYear}
+            </div>
+          )}
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
           <OfstedBadge overall={data.ofsted_overall} date={data.ofsted_date} />
           {data.is_selective && <span className="badge badge-selective">Selective</span>}
+          <button
+            className={`btn btn-sm ${saved ? 'btn-primary' : 'btn-ghost'}`}
+            onClick={() => shortlist.toggle(data.urn, data.name)}
+          >
+            {saved ? 'Saved' : 'Save'}
+          </button>
           <button
             className={`btn btn-sm ${selected ? 'btn-primary' : 'btn-ghost'}`}
             onClick={() => toggle(data.urn, data.name)}

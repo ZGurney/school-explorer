@@ -45,6 +45,15 @@ class TestSchoolsListEndpoint:
         assert "/api/v1/schools" in schema["paths"]
         assert "/api/v1/schools/{urn}" in schema["paths"]
 
+    def test_schools_openapi_includes_parent_ux_filters(self, client):
+        resp = client.get("/openapi.json")
+        assert resp.status_code == 200
+        params = {
+            p["name"]
+            for p in resp.json()["paths"]["/api/v1/schools"]["get"]["parameters"]
+        }
+        assert {"faith_only", "lat", "lng", "radius_km", "establishment_groups"} <= params
+
     def test_docs_reachable(self, client):
         resp = client.get("/docs")
         assert resp.status_code == 200
@@ -73,6 +82,11 @@ class TestMetaEndpoints:
         paths = schema["paths"]
         assert any("meta" in p or "boroughs" in p or "phases" in p for p in paths), \
             f"Expected a meta route in schema, got: {list(paths)}"
+
+    def test_benchmarks_route_exists_in_schema(self, client):
+        resp = client.get("/openapi.json")
+        assert resp.status_code == 200
+        assert "/api/v1/benchmarks" in resp.json()["paths"]
 
 
 # ---------------------------------------------------------------------------

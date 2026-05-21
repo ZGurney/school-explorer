@@ -29,6 +29,13 @@ export default function DestinationsTab({ school: s }: Props) {
   ].filter(d => d.value !== null) as { name: string; value: number }[] : []
 
   if (!ks4 && !ks5) {
+    if (s.phase === 'Primary') {
+      return (
+        <p style={{ color: '#6b7280', marginTop: 20 }}>
+          Destinations data tracks where pupils go after Year 11 or after sixth form. This data is only collected for secondary schools and sixth forms.
+        </p>
+      )
+    }
     return <p style={{ color: '#6b7280', marginTop: 20 }}>No destinations data available for this school.</p>
   }
 

@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from school_explorer.api.routers import meta, school, schools
+from school_explorer.api.routers import benchmarks, meta, school, schools
 from school_explorer.config import settings
 
 
@@ -23,4 +23,5 @@ app.add_middleware(
 
 app.include_router(schools.router, prefix="/api/v1")
 app.include_router(school.router, prefix="/api/v1")
+app.include_router(benchmarks.router, prefix="/api/v1")
 app.include_router(meta.router, prefix="/api/v1")

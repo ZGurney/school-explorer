@@ -68,6 +68,7 @@ def _fetch_school_detail(db: DbSession, urn: int) -> Optional[SchoolDetail]:
     data["locality"] = school.locality
     data["town"] = school.town
     data["website"] = school.website
+    data["telephone"] = school.telephone
     data["headteacher_name"] = school.headteacher_name
     data["open_date"] = school.open_date
 

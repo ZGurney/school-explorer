@@ -3,12 +3,16 @@ import {
   Line,
   LineChart,
   ResponsiveContainer,
+  ReferenceLine,
   Tooltip,
   XAxis,
   YAxis,
 } from 'recharts'
 import type { SchoolDetail } from '../../api/types'
+import { useBenchmarks } from '../../hooks/useSchools'
+import { GLOSSARY } from '../../utils/glossary'
 import StatValue from '../StatValue'
+import LabelTooltip from '../Tooltip'
 
 interface Props { school: SchoolDetail }
 
@@ -20,6 +24,7 @@ export default function AcademicTab({ school: s }: Props) {
   const ks4Data = [...s.performance_ks4_history].reverse()
   const ks5Data = [...s.performance_ks5_history].reverse()
   const ks2Data = [...s.performance_ks2_history].reverse()
+  const { data: benchmarks } = useBenchmarks()
 
   return (
     <div>
@@ -34,6 +39,9 @@ export default function AcademicTab({ school: s }: Props) {
                 <XAxis dataKey="academic_year" tick={{ fontSize: 12 }} />
                 <YAxis tick={{ fontSize: 12 }} />
                 <Tooltip />
+                {benchmarks?.ks4_attainment_8 !== null && benchmarks?.ks4_attainment_8 !== undefined && (
+                  <ReferenceLine y={benchmarks.ks4_attainment_8} stroke="#6b7280" strokeDasharray="5 5" label="London avg A8" />
+                )}
                 <Line type="monotone" dataKey="attainment_8" name="Attainment 8" stroke="#2563eb" dot />
                 <Line type="monotone" dataKey="progress_8" name="Progress 8" stroke="#16a34a" dot />
               </LineChart>
@@ -43,10 +51,10 @@ export default function AcademicTab({ school: s }: Props) {
             <thead>
               <tr style={{ background: '#f9fafb' }}>
                 <th style={{ textAlign: 'left', padding: '6px 8px', fontSize: 13 }}>Year</th>
-                <th style={{ textAlign: 'right', padding: '6px 8px', fontSize: 13 }}>Attainment 8</th>
-                <th style={{ textAlign: 'right', padding: '6px 8px', fontSize: 13 }}>Progress 8</th>
+                <th style={{ textAlign: 'right', padding: '6px 8px', fontSize: 13 }}><LabelTooltip text={GLOSSARY['Attainment 8']}>Attainment 8</LabelTooltip></th>
+                <th style={{ textAlign: 'right', padding: '6px 8px', fontSize: 13 }}><LabelTooltip text={GLOSSARY['Progress 8']}>Progress 8</LabelTooltip></th>
                 <th style={{ textAlign: 'right', padding: '6px 8px', fontSize: 13 }}>P8 CI</th>
-                <th style={{ textAlign: 'right', padding: '6px 8px', fontSize: 13 }}>Grade 5+ E&M</th>
+                <th style={{ textAlign: 'right', padding: '6px 8px', fontSize: 13 }}><LabelTooltip text={GLOSSARY['Grade 5+ E&M']}>Grade 5+ E&M</LabelTooltip></th>
               </tr>
             </thead>
             <tbody>
@@ -85,6 +93,9 @@ export default function AcademicTab({ school: s }: Props) {
                 <XAxis dataKey="academic_year" tick={{ fontSize: 12 }} />
                 <YAxis tick={{ fontSize: 12 }} />
                 <Tooltip />
+                {benchmarks?.ks5_avg_points !== null && benchmarks?.ks5_avg_points !== undefined && (
+                  <ReferenceLine y={benchmarks.ks5_avg_points} stroke="#6b7280" strokeDasharray="5 5" label="London avg" />
+                )}
                 <Line type="monotone" dataKey="avg_points_per_alevel_entry" name="Avg points/A-level" stroke="#2563eb" dot />
                 <Line type="monotone" dataKey="pct_astar_or_a" name="% A*–A" stroke="#16a34a" dot />
               </LineChart>
@@ -134,6 +145,9 @@ export default function AcademicTab({ school: s }: Props) {
                 <XAxis dataKey="academic_year" tick={{ fontSize: 12 }} />
                 <YAxis tick={{ fontSize: 12 }} />
                 <Tooltip />
+                {benchmarks?.ks2_pct_expected_rwm !== null && benchmarks?.ks2_pct_expected_rwm !== undefined && (
+                  <ReferenceLine y={benchmarks.ks2_pct_expected_rwm} stroke="#6b7280" strokeDasharray="5 5" label="London avg" />
+                )}
                 <Line type="monotone" dataKey="pct_expected_rwm" name="% Expected RWM" stroke="#2563eb" dot />
               </LineChart>
             </ResponsiveContainer>
@@ -142,7 +156,7 @@ export default function AcademicTab({ school: s }: Props) {
             <thead>
               <tr style={{ background: '#f9fafb' }}>
                 <th style={{ textAlign: 'left', padding: '6px 8px', fontSize: 13 }}>Year</th>
-                <th style={{ textAlign: 'right', padding: '6px 8px', fontSize: 13 }}>% Expected RWM</th>
+                <th style={{ textAlign: 'right', padding: '6px 8px', fontSize: 13 }}><LabelTooltip text={GLOSSARY.RWM}>% Expected RWM</LabelTooltip></th>
                 <th style={{ textAlign: 'right', padding: '6px 8px', fontSize: 13 }}>% Greater depth</th>
                 <th style={{ textAlign: 'right', padding: '6px 8px', fontSize: 13 }}>Progress (R/W/M)</th>
               </tr>

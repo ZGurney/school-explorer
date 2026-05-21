@@ -181,6 +181,7 @@ class SchoolSummary(BaseModel):
     # Pupils
     total_pupils: Optional[int] = None
     pct_fsm6: Optional[float] = None
+    distance_km: Optional[float] = None
 
 
 class SchoolDetail(SchoolSummary):
@@ -189,6 +190,7 @@ class SchoolDetail(SchoolSummary):
     locality: Optional[str] = None
     town: Optional[str] = None
     website: Optional[str] = None
+    telephone: Optional[str] = None
     headteacher_name: Optional[str] = None
     open_date: Optional[date] = None
     capacity: Optional[int] = None
@@ -251,6 +253,14 @@ class PaginatedSchools(BaseModel):
     page: int
     page_size: int
     results: list[SchoolSummary]
+
+
+class BenchmarkSummary(BaseModel):
+    ks2_pct_expected_rwm: Optional[float] = None
+    ks4_attainment_8: Optional[float] = None
+    ks4_progress_8: Optional[float] = None
+    ks4_pct_grade5_english_maths: Optional[float] = None
+    ks5_avg_points: Optional[float] = None
 
 
 class BoroughSummary(BaseModel):

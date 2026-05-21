@@ -17,6 +17,7 @@ const TYPES = [
   { value: '', label: 'All types' },
   { value: 'state', label: 'State' },
   { value: 'academy', label: 'Academy' },
+  { value: 'free', label: 'Free School' },
   { value: 'grammar', label: 'Grammar' },
   { value: 'independent', label: 'Independent' },
 ]
@@ -83,7 +84,7 @@ const METRICS: Metric[] = [
   },
 ]
 
-const OFSTED_ORDER = ['Outstanding', 'Good', 'Requires improvement', 'Inadequate']
+const STATE_FUNDED_GROUPS = 'state,academy,free'
 
 function SummaryStats({ data }: { data: { total: number; results: SchoolSummary[] } | undefined }) {
   if (!data) return null
@@ -151,13 +152,15 @@ export default function DashboardPage() {
 
   const selectMetric = (key: string) => {
     setActiveMetric(key)
-    update({ sort_by: key })
     // Auto-set phase filter for phase-specific metrics
     const m = METRICS.find(m => m.key === key)
+    const stateFundedDefault = key === 'attainment_8' || key === 'pct_expected_rwm' || key === 'pct_grade5_english_maths'
     if (m && m.phases.length === 1) {
-      update({ sort_by: key, phase: m.phases[0] })
+      update({ sort_by: key, phase: m.phases[0], establishment_group: undefined, establishment_groups: stateFundedDefault ? STATE_FUNDED_GROUPS : undefined })
+    } else if (m && m.phases.length > 1) {
+      update({ sort_by: key, phase: undefined, establishment_group: undefined, establishment_groups: stateFundedDefault ? STATE_FUNDED_GROUPS : undefined })
     } else if (m && m.phases.length === 0) {
-      update({ sort_by: key })
+      update({ sort_by: key, establishment_groups: undefined })
     }
   }
 
@@ -194,7 +197,7 @@ export default function DashboardPage() {
         </div>
         <div>
           <div className="filter-label" style={{ marginBottom: 4 }}>Type</div>
-          <select value={filters.establishment_group ?? ''} onChange={e => update({ establishment_group: e.target.value || undefined })} className="filter-select" style={{ width: 140 }}>
+          <select value={filters.establishment_group ?? ''} onChange={e => update({ establishment_group: e.target.value || undefined, establishment_groups: undefined })} className="filter-select" style={{ width: 140 }}>
             {TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
           </select>
         </div>
@@ -216,6 +219,11 @@ export default function DashboardPage() {
           Clear
         </button>
       </div>
+      {filters.establishment_groups === STATE_FUNDED_GROUPS && (
+        <p style={{ color: 'var(--gray-500)', fontSize: 13, margin: '-10px 0 16px' }}>
+          Showing state-funded schools. Remove the filter to include independent and grammar schools.
+        </p>
+      )}
 
       {/* Metric tabs */}
       <div style={{

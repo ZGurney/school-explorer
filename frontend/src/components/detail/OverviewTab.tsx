@@ -1,14 +1,42 @@
 import type { SchoolDetail } from '../../api/types'
+import { useBenchmarks } from '../../hooks/useSchools'
+import { GLOSSARY } from '../../utils/glossary'
 import OfstedBadge from '../OfstedBadge'
 import StatValue from '../StatValue'
+import Tooltip from '../Tooltip'
 
 interface Props { school: SchoolDetail }
 
-function Row({ label, children }: { label: string; children: React.ReactNode }) {
+function Row({ label, children }: { label: React.ReactNode; children: React.ReactNode }) {
   return (
     <tr>
       <td style={{ color: '#6b7280', paddingRight: 16, paddingBottom: 6, whiteSpace: 'nowrap', verticalAlign: 'top' }}>{label}</td>
       <td style={{ paddingBottom: 6 }}>{children}</td>
+    </tr>
+  )
+}
+
+function AvgValue({ value, suffix = '' }: { value: number | null | undefined; suffix?: string }) {
+  if (value === null || value === undefined) return <span style={{ color: '#9ca3af' }}>–</span>
+  return <>{value.toFixed(suffix ? 0 : 1)}{suffix}</>
+}
+
+function StatRow({ label, tip, value, avg, suffix = '', suppressed, decimals }: {
+  label: string
+  tip?: string
+  value: number | null | undefined
+  avg?: number | null
+  suffix?: string
+  suppressed?: boolean | null
+  decimals?: number
+}) {
+  return (
+    <tr>
+      <td style={{ color: '#6b7280', paddingRight: 16, paddingBottom: 6, whiteSpace: 'nowrap', verticalAlign: 'top' }}>
+        {tip ? <Tooltip text={tip}>{label}</Tooltip> : label}
+      </td>
+      <td style={{ paddingBottom: 6, textAlign: 'right' }}><StatValue value={value} suppressed={suppressed} suffix={suffix} decimals={decimals} /></td>
+      <td style={{ paddingBottom: 6, textAlign: 'right', color: '#6b7280' }}><AvgValue value={avg} suffix={suffix} /></td>
     </tr>
   )
 }
@@ -25,6 +53,7 @@ function groupLabel(g: string | null) {
 
 export default function OverviewTab({ school: s }: Props) {
   const address = [s.street, s.locality, s.town, s.postcode].filter(Boolean).join(', ')
+  const { data: benchmarks } = useBenchmarks()
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
@@ -46,6 +75,7 @@ export default function OverviewTab({ school: s }: Props) {
                 <a href={s.website} target="_blank" rel="noopener noreferrer">{s.website}</a>
               </Row>
             )}
+            {s.telephone && <Row label="Telephone"><a href={`tel:${s.telephone}`}>{s.telephone}</a></Row>}
           </tbody>
         </table>
       </div>
@@ -74,23 +104,28 @@ export default function OverviewTab({ school: s }: Props) {
 
         <h3 style={{ marginTop: 20, marginBottom: 12 }}>Key stats</h3>
         <table style={{ borderCollapse: 'collapse', width: '100%' }}>
+          <thead>
+            <tr>
+              <th style={{ textAlign: 'left', color: '#6b7280', fontSize: 12, fontWeight: 600, paddingBottom: 6 }}>Metric</th>
+              <th style={{ textAlign: 'right', color: '#6b7280', fontSize: 12, fontWeight: 600, paddingBottom: 6 }}>School</th>
+              <th style={{ textAlign: 'right', color: '#6b7280', fontSize: 12, fontWeight: 600, paddingBottom: 6 }}>London avg</th>
+            </tr>
+          </thead>
           <tbody>
-            <Row label="Pupils"><StatValue value={s.total_pupils} decimals={0} /></Row>
-            <Row label="FSM eligible">
-              <StatValue value={s.pct_fsm6} suppressed={null} suffix="%" />
-            </Row>
+            <StatRow label="Pupils" value={s.total_pupils} decimals={0} />
+            <StatRow label="FSM eligible" tip={GLOSSARY['FSM eligible']} value={s.pct_fsm6} suffix="%" />
             {(s.phase === 'Secondary' || s.phase === 'All-through') && (
               <>
-                <Row label="Attainment 8"><StatValue value={s.attainment_8} suppressed={s.ks4_suppressed} /></Row>
-                <Row label="Progress 8"><StatValue value={s.progress_8} suppressed={s.ks4_suppressed} /></Row>
-                <Row label="Grade 5+ E&M"><StatValue value={s.pct_grade5_english_maths} suppressed={s.ks4_suppressed} suffix="%" /></Row>
+                <StatRow label="Attainment 8" tip={GLOSSARY['Attainment 8']} value={s.attainment_8} avg={benchmarks?.ks4_attainment_8} suppressed={s.ks4_suppressed} />
+                <StatRow label="Progress 8" tip={GLOSSARY['Progress 8']} value={s.progress_8} avg={benchmarks?.ks4_progress_8} suppressed={s.ks4_suppressed} />
+                <StatRow label="Grade 5+ E&M" tip={GLOSSARY['Grade 5+ E&M']} value={s.pct_grade5_english_maths} avg={benchmarks?.ks4_pct_grade5_english_maths} suppressed={s.ks4_suppressed} suffix="%" />
               </>
             )}
             {s.phase === 'Primary' && (
-              <Row label="Expected RWM"><StatValue value={s.pct_expected_rwm} suppressed={s.ks2_suppressed} suffix="%" /></Row>
+              <StatRow label="Expected RWM" tip={GLOSSARY.RWM} value={s.pct_expected_rwm} avg={benchmarks?.ks2_pct_expected_rwm} suppressed={s.ks2_suppressed} suffix="%" />
             )}
             {(s.has_sixth_form || s.phase === '16 plus') && (
-              <Row label="Avg A-level points"><StatValue value={s.avg_points_per_alevel_entry} suppressed={s.ks5_suppressed} /></Row>
+              <StatRow label="Avg A-level points" value={s.avg_points_per_alevel_entry} avg={benchmarks?.ks5_avg_points} suppressed={s.ks5_suppressed} />
             )}
           </tbody>
         </table>

@@ -1,5 +1,7 @@
 import type { SchoolDetail } from '../../api/types'
+import { GLOSSARY } from '../../utils/glossary'
 import StatValue from '../StatValue'
+import Tooltip from '../Tooltip'
 
 interface Props { school: SchoolDetail }
 
@@ -12,7 +14,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   )
 }
 
-function Row({ label, children }: { label: string; children: React.ReactNode }) {
+function Row({ label, children }: { label: React.ReactNode; children: React.ReactNode }) {
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0', borderBottom: '1px solid #f3f4f6', fontSize: 14 }}>
       <span style={{ color: '#374151' }}>{label}</span>
@@ -31,9 +33,9 @@ export default function ContextTab({ school: s }: Props) {
       <div>
         <Section title={`Pupils${pupils ? ` (${pupils.academic_year})` : ''}`}>
           <Row label="Total pupils"><StatValue value={s.total_pupils} decimals={0} /></Row>
-          <Row label="FSM eligible (6yr)"><StatValue value={s.pct_fsm6} suffix="%" /></Row>
-          <Row label="EAL pupils"><StatValue value={s.pct_eal} suffix="%" /></Row>
-          <Row label="SEN (EHCP)"><StatValue value={s.pct_sen_ehcp} suffix="%" /></Row>
+          <Row label={<Tooltip text={GLOSSARY['FSM eligible']}>FSM eligible (6yr)</Tooltip>}><StatValue value={s.pct_fsm6} suffix="%" /></Row>
+          <Row label={<Tooltip text={GLOSSARY.EAL}>EAL pupils</Tooltip>}><StatValue value={s.pct_eal} suffix="%" /></Row>
+          <Row label={<Tooltip text={GLOSSARY['SEN / EHCP']}>SEN (EHCP)</Tooltip>}><StatValue value={s.pct_sen_ehcp} suffix="%" /></Row>
           <Row label="Absence rate"><StatValue value={s.pct_absence_overall} suffix="%" /></Row>
         </Section>
 
