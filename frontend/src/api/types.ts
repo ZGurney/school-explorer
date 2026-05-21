@@ -210,6 +210,7 @@ export interface SchoolFilters {
   is_selective?: boolean
   gender?: string
   faith_only?: boolean
+  ofsted_rating?: string
   establishment_groups?: string
   lat?: number
   lng?: number

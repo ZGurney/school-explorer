@@ -31,7 +31,7 @@ export default function AcademicTab({ school: s }: Props) {
       {/* KS4 */}
       {s.performance_ks4_history.length > 0 && (
         <>
-          <SectionHeader title="Key Stage 4 (GCSE)" />
+          <SectionHeader title="GCSE results (KS4)" />
           {ks4Data.length > 1 ? (
             <ResponsiveContainer width="100%" height={250}>
               <LineChart data={ks4Data} margin={{ top: 4, right: 16, bottom: 4, left: 0 }}>
@@ -42,8 +42,8 @@ export default function AcademicTab({ school: s }: Props) {
                 {benchmarks?.ks4_attainment_8 !== null && benchmarks?.ks4_attainment_8 !== undefined && (
                   <ReferenceLine y={benchmarks.ks4_attainment_8} stroke="#6b7280" strokeDasharray="5 5" label="London avg A8" />
                 )}
-                <Line type="monotone" dataKey="attainment_8" name="Attainment 8" stroke="#2563eb" dot />
-                <Line type="monotone" dataKey="progress_8" name="Progress 8" stroke="#16a34a" dot />
+                <Line type="monotone" dataKey="attainment_8" name="GCSE average score" stroke="#2563eb" dot />
+                <Line type="monotone" dataKey="progress_8" name="Pupil progress score" stroke="#16a34a" dot />
               </LineChart>
             </ResponsiveContainer>
           ) : null}
@@ -51,10 +51,10 @@ export default function AcademicTab({ school: s }: Props) {
             <thead>
               <tr style={{ background: '#f9fafb' }}>
                 <th style={{ textAlign: 'left', padding: '6px 8px', fontSize: 13 }}>Year</th>
-                <th style={{ textAlign: 'right', padding: '6px 8px', fontSize: 13 }}><LabelTooltip text={GLOSSARY['Attainment 8']}>Attainment 8</LabelTooltip></th>
-                <th style={{ textAlign: 'right', padding: '6px 8px', fontSize: 13 }}><LabelTooltip text={GLOSSARY['Progress 8']}>Progress 8</LabelTooltip></th>
-                <th style={{ textAlign: 'right', padding: '6px 8px', fontSize: 13 }}>P8 CI</th>
-                <th style={{ textAlign: 'right', padding: '6px 8px', fontSize: 13 }}><LabelTooltip text={GLOSSARY['Grade 5+ E&M']}>Grade 5+ E&M</LabelTooltip></th>
+                <th style={{ textAlign: 'right', padding: '6px 8px', fontSize: 13 }}><LabelTooltip text={GLOSSARY['Attainment 8']}>GCSE average score</LabelTooltip></th>
+                <th style={{ textAlign: 'right', padding: '6px 8px', fontSize: 13 }}><LabelTooltip text={GLOSSARY['Progress 8']}>Pupil progress</LabelTooltip></th>
+                <th style={{ textAlign: 'right', padding: '6px 8px', fontSize: 13 }}><LabelTooltip text="The confidence interval around the progress score.">Progress range</LabelTooltip></th>
+                <th style={{ textAlign: 'right', padding: '6px 8px', fontSize: 13 }}><LabelTooltip text={GLOSSARY['Grade 5+ E&M']}>Strong English & Maths</LabelTooltip></th>
               </tr>
             </thead>
             <tbody>
@@ -85,7 +85,7 @@ export default function AcademicTab({ school: s }: Props) {
       {/* KS5 */}
       {s.performance_ks5_history.length > 0 && (
         <>
-          <SectionHeader title="Key Stage 5 (A-level & Post-16)" />
+          <SectionHeader title="A-level & post-16 results (KS5)" />
           {ks5Data.length > 1 ? (
             <ResponsiveContainer width="100%" height={220}>
               <LineChart data={ks5Data} margin={{ top: 4, right: 16, bottom: 4, left: 0 }}>
@@ -137,7 +137,7 @@ export default function AcademicTab({ school: s }: Props) {
       {/* KS2 */}
       {s.performance_ks2_history.length > 0 && (
         <>
-          <SectionHeader title="Key Stage 2 (Primary)" />
+          <SectionHeader title="Primary results (KS2)" />
           {ks2Data.length > 1 ? (
             <ResponsiveContainer width="100%" height={200}>
               <LineChart data={ks2Data} margin={{ top: 4, right: 16, bottom: 4, left: 0 }}>
@@ -148,7 +148,7 @@ export default function AcademicTab({ school: s }: Props) {
                 {benchmarks?.ks2_pct_expected_rwm !== null && benchmarks?.ks2_pct_expected_rwm !== undefined && (
                   <ReferenceLine y={benchmarks.ks2_pct_expected_rwm} stroke="#6b7280" strokeDasharray="5 5" label="London avg" />
                 )}
-                <Line type="monotone" dataKey="pct_expected_rwm" name="% Expected RWM" stroke="#2563eb" dot />
+                <Line type="monotone" dataKey="pct_expected_rwm" name="Reading, writing & maths" stroke="#2563eb" dot />
               </LineChart>
             </ResponsiveContainer>
           ) : null}
@@ -156,8 +156,8 @@ export default function AcademicTab({ school: s }: Props) {
             <thead>
               <tr style={{ background: '#f9fafb' }}>
                 <th style={{ textAlign: 'left', padding: '6px 8px', fontSize: 13 }}>Year</th>
-                <th style={{ textAlign: 'right', padding: '6px 8px', fontSize: 13 }}><LabelTooltip text={GLOSSARY.RWM}>% Expected RWM</LabelTooltip></th>
-                <th style={{ textAlign: 'right', padding: '6px 8px', fontSize: 13 }}>% Greater depth</th>
+                <th style={{ textAlign: 'right', padding: '6px 8px', fontSize: 13 }}><LabelTooltip text={GLOSSARY.RWM}>Reading, writing & maths</LabelTooltip></th>
+                <th style={{ textAlign: 'right', padding: '6px 8px', fontSize: 13 }}>Exceeded expectations %</th>
                 <th style={{ textAlign: 'right', padding: '6px 8px', fontSize: 13 }}>Progress (R/W/M)</th>
               </tr>
             </thead>

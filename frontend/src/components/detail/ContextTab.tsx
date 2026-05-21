@@ -29,13 +29,13 @@ export default function ContextTab({ school: s }: Props) {
   const financials = s.financials_history[0]
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+    <div className="context-grid">
       <div>
         <Section title={`Pupils${pupils ? ` (${pupils.academic_year})` : ''}`}>
           <Row label="Total pupils"><StatValue value={s.total_pupils} decimals={0} /></Row>
-          <Row label={<Tooltip text={GLOSSARY['FSM eligible']}>FSM eligible (6yr)</Tooltip>}><StatValue value={s.pct_fsm6} suffix="%" /></Row>
-          <Row label={<Tooltip text={GLOSSARY.EAL}>EAL pupils</Tooltip>}><StatValue value={s.pct_eal} suffix="%" /></Row>
-          <Row label={<Tooltip text={GLOSSARY['SEN / EHCP']}>SEN (EHCP)</Tooltip>}><StatValue value={s.pct_sen_ehcp} suffix="%" /></Row>
+          <Row label={<Tooltip text={GLOSSARY['FSM eligible']}>Pupils from lower-income families</Tooltip>}><StatValue value={s.pct_fsm6} suffix="%" /></Row>
+          <Row label={<Tooltip text={GLOSSARY.EAL}>Pupils learning English</Tooltip>}><StatValue value={s.pct_eal} suffix="%" /></Row>
+          <Row label={<Tooltip text={GLOSSARY['SEN / EHCP']}>Pupils with special educational needs</Tooltip>}><StatValue value={s.pct_sen_ehcp} suffix="%" /></Row>
           <Row label="Absence rate"><StatValue value={s.pct_absence_overall} suffix="%" /></Row>
         </Section>
 
@@ -47,49 +47,52 @@ export default function ContextTab({ school: s }: Props) {
       </div>
 
       <div>
-        <Section title={`Financials${financials ? ` (${financials.financial_year})` : ''}`}>
-          <Row label="Income per pupil">
-            {s.income_per_pupil !== null ? `£${s.income_per_pupil.toLocaleString()}` : <span style={{ color: '#9ca3af' }}>Not available</span>}
-          </Row>
-          <Row label="Expenditure per pupil">
-            {s.expenditure_per_pupil !== null ? `£${s.expenditure_per_pupil.toLocaleString()}` : <span style={{ color: '#9ca3af' }}>Not available</span>}
-          </Row>
-          <Row label="Balance per pupil">
-            {s.balance_per_pupil !== null ? (
-              <span style={{ color: s.in_deficit ? '#dc2626' : '#16a34a' }}>
-                {s.in_deficit ? '–' : '+'}£{Math.abs(s.balance_per_pupil).toLocaleString()}
-                {s.in_deficit ? ' (deficit)' : ' (surplus)'}
-              </span>
-            ) : <span style={{ color: '#9ca3af' }}>Not available</span>}
-          </Row>
-        </Section>
-
-        {s.financials_history.length > 1 && (
-          <Section title="Financial history">
-            <table style={{ borderCollapse: 'collapse', width: '100%' }}>
-              <thead>
-                <tr style={{ background: '#f9fafb' }}>
-                  <th style={{ textAlign: 'left', padding: '5px 6px', fontSize: 12 }}>Year</th>
-                  <th style={{ textAlign: 'right', padding: '5px 6px', fontSize: 12 }}>Income/pupil</th>
-                  <th style={{ textAlign: 'right', padding: '5px 6px', fontSize: 12 }}>Spend/pupil</th>
-                  <th style={{ textAlign: 'right', padding: '5px 6px', fontSize: 12 }}>Balance/pupil</th>
-                </tr>
-              </thead>
-              <tbody>
-                {s.financials_history.map(f => (
-                  <tr key={f.financial_year} style={{ borderBottom: '1px solid #f3f4f6', fontSize: 13 }}>
-                    <td style={{ padding: '5px 6px' }}>{f.financial_year}</td>
-                    <td style={{ padding: '5px 6px', textAlign: 'right' }}>{f.income_per_pupil !== null ? `£${f.income_per_pupil.toLocaleString()}` : '–'}</td>
-                    <td style={{ padding: '5px 6px', textAlign: 'right' }}>{f.expenditure_per_pupil !== null ? `£${f.expenditure_per_pupil.toLocaleString()}` : '–'}</td>
-                    <td style={{ padding: '5px 6px', textAlign: 'right', color: f.in_deficit ? '#dc2626' : '#16a34a' }}>
-                      {f.balance_per_pupil !== null ? `${f.in_deficit ? '-' : '+'}£${Math.abs(f.balance_per_pupil).toLocaleString()}` : '–'}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        <details className="advanced-details">
+          <summary>Advanced financial context{financials ? ` (${financials.financial_year})` : ''}</summary>
+          <Section title="Financials">
+            <Row label="Income per pupil">
+              {s.income_per_pupil !== null ? `£${s.income_per_pupil.toLocaleString()}` : <span style={{ color: '#9ca3af' }}>Not available</span>}
+            </Row>
+            <Row label="Expenditure per pupil">
+              {s.expenditure_per_pupil !== null ? `£${s.expenditure_per_pupil.toLocaleString()}` : <span style={{ color: '#9ca3af' }}>Not available</span>}
+            </Row>
+            <Row label="Balance per pupil">
+              {s.balance_per_pupil !== null ? (
+                <span style={{ color: s.in_deficit ? '#dc2626' : '#16a34a' }}>
+                  {s.in_deficit ? '-' : '+'}£{Math.abs(s.balance_per_pupil).toLocaleString()}
+                  {s.in_deficit ? ' (deficit)' : ' (surplus)'}
+                </span>
+              ) : <span style={{ color: '#9ca3af' }}>Not available</span>}
+            </Row>
           </Section>
-        )}
+
+          {s.financials_history.length > 1 && (
+            <Section title="Financial history">
+              <table style={{ borderCollapse: 'collapse', width: '100%' }}>
+                <thead>
+                  <tr style={{ background: '#f9fafb' }}>
+                    <th style={{ textAlign: 'left', padding: '5px 6px', fontSize: 12 }}>Year</th>
+                    <th style={{ textAlign: 'right', padding: '5px 6px', fontSize: 12 }}>Income/pupil</th>
+                    <th style={{ textAlign: 'right', padding: '5px 6px', fontSize: 12 }}>Spend/pupil</th>
+                    <th style={{ textAlign: 'right', padding: '5px 6px', fontSize: 12 }}>Balance/pupil</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {s.financials_history.map(f => (
+                    <tr key={f.financial_year} style={{ borderBottom: '1px solid #f3f4f6', fontSize: 13 }}>
+                      <td style={{ padding: '5px 6px' }}>{f.financial_year}</td>
+                      <td style={{ padding: '5px 6px', textAlign: 'right' }}>{f.income_per_pupil !== null ? `£${f.income_per_pupil.toLocaleString()}` : '-'}</td>
+                      <td style={{ padding: '5px 6px', textAlign: 'right' }}>{f.expenditure_per_pupil !== null ? `£${f.expenditure_per_pupil.toLocaleString()}` : '-'}</td>
+                      <td style={{ padding: '5px 6px', textAlign: 'right', color: f.in_deficit ? '#dc2626' : '#16a34a' }}>
+                        {f.balance_per_pupil !== null ? `${f.in_deficit ? '-' : '+'}£${Math.abs(f.balance_per_pupil).toLocaleString()}` : '-'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </Section>
+          )}
+        </details>
       </div>
     </div>
   )

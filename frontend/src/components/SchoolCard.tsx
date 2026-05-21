@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Heart } from 'lucide-react'
-import type { SchoolSummary } from '../api/types'
+import type { BenchmarkSummary, SchoolSummary } from '../api/types'
 import { useCompareContext } from '../context/CompareContext'
 import { useShortlistContext } from '../context/ShortlistContext'
 import { GLOSSARY } from '../utils/glossary'
@@ -11,53 +11,65 @@ const GROUP_LABEL: Record<string, string> = {
   state: 'State', academy: 'Academy', free: 'Free School',
   grammar: 'Grammar', independent: 'Independent',
   sixth_form_college: 'Sixth Form College', utc: 'UTC',
-  studio: 'Studio School', pru: 'PRU', state_special: 'Special',
+  studio: 'Studio School', pru: 'Alternative provision (PRU)', state_special: 'Special school',
+  other: 'Other education setting',
 }
 
-function KeyMetric({ s }: { s: SchoolSummary }) {
+function BenchmarkBadge({ value, avg, suffix = '' }: { value: number | null | undefined; avg: number | null | undefined; suffix?: string }) {
+  if (value === null || value === undefined || avg === null || avg === undefined) return null
+  const diff = value - avg
+  const variant = Math.abs(diff) < 0.5 ? 'neutral' : diff > 0 ? 'positive' : 'negative'
+  const label = variant === 'neutral' ? 'Around London avg' : variant === 'positive' ? 'Above London avg' : 'Below London avg'
+  return <span className={`benchmark-badge ${variant}`}>{label}: {avg.toFixed(suffix ? 0 : 1)}{suffix}</span>
+}
+
+function KeyMetric({ s, benchmarks }: { s: SchoolSummary; benchmarks?: BenchmarkSummary }) {
   if (s.phase === 'Secondary' || s.phase === 'All-through') {
     return (
       <div className="card-stat">
-        <Tooltip text={GLOSSARY['Attainment 8']}>Attainment 8</Tooltip>:{' '}
+        <Tooltip text={GLOSSARY['Attainment 8']}>GCSE average score</Tooltip>:{' '}
         {s.ks4_suppressed
           ? <span className="na">small cohort</span>
           : s.attainment_8 !== null
             ? <strong>{s.attainment_8.toFixed(1)}</strong>
             : <span className="na">n/a</span>}
         {s.pct_grade5_english_maths !== null && !s.ks4_suppressed && (
-          <span style={{ marginLeft: 8 }}><Tooltip text={GLOSSARY['Grade 5+ E&M']}>Gr5+</Tooltip>: <strong>{s.pct_grade5_english_maths.toFixed(0)}%</strong></span>
+          <span style={{ marginLeft: 8 }}><Tooltip text={GLOSSARY['Grade 5+ E&M']}>Strong English & Maths passes</Tooltip>: <strong>{s.pct_grade5_english_maths.toFixed(0)}%</strong></span>
         )}
+        {!s.ks4_suppressed && <BenchmarkBadge value={s.attainment_8} avg={benchmarks?.ks4_attainment_8} />}
       </div>
     )
   }
   if (s.phase === 'Primary') {
     return (
       <div className="card-stat">
-        <Tooltip text={GLOSSARY.RWM}>Expected RWM</Tooltip>:{' '}
+        <Tooltip text={GLOSSARY.RWM}>Reading, writing & maths</Tooltip>:{' '}
         {s.ks2_suppressed
           ? <span className="na">small cohort</span>
           : s.pct_expected_rwm !== null
             ? <strong>{s.pct_expected_rwm.toFixed(0)}%</strong>
             : <span className="na">n/a</span>}
+        {!s.ks2_suppressed && <BenchmarkBadge value={s.pct_expected_rwm} avg={benchmarks?.ks2_pct_expected_rwm} suffix="%" />}
       </div>
     )
   }
   if (s.has_sixth_form || s.phase === '16 plus') {
     return (
       <div className="card-stat">
-        A-level avg pts:{' '}
+        A-level average points:{' '}
         {s.ks5_suppressed
           ? <span className="na">small cohort</span>
           : s.avg_points_per_alevel_entry !== null
             ? <strong>{s.avg_points_per_alevel_entry.toFixed(1)}</strong>
             : <span className="na">n/a</span>}
+        {!s.ks5_suppressed && <BenchmarkBadge value={s.avg_points_per_alevel_entry} avg={benchmarks?.ks5_avg_points} />}
       </div>
     )
   }
   return null
 }
 
-export default function SchoolCard({ school: s }: { school: SchoolSummary }) {
+export default function SchoolCard({ school: s, benchmarks }: { school: SchoolSummary; benchmarks?: BenchmarkSummary }) {
   const { toggle, isSelected } = useCompareContext()
   const shortlist = useShortlistContext()
   const selected = isSelected(s.urn)
@@ -75,6 +87,7 @@ export default function SchoolCard({ school: s }: { school: SchoolSummary }) {
             title={saved ? 'Remove from shortlist' : 'Save to shortlist'}
           >
             <Heart size={15} fill={saved ? 'currentColor' : 'none'} />
+            <span>{saved ? 'Saved' : 'Save'}</span>
           </button>
           <button
             className={`compare-toggle${selected ? ' active' : ''}`}
@@ -93,6 +106,7 @@ export default function SchoolCard({ school: s }: { school: SchoolSummary }) {
         {s.phase && <><span className="card-meta-dot">·</span><span>{s.phase}</span></>}
         {s.establishment_group && <><span className="card-meta-dot">·</span><span>{GROUP_LABEL[s.establishment_group] ?? s.establishment_group}</span></>}
         {s.total_pupils !== null && <><span className="card-meta-dot">·</span><span>{s.total_pupils.toLocaleString()} pupils</span></>}
+        {s.postcode && <><span className="card-meta-dot">·</span><span>{s.postcode}</span></>}
         {s.distance_km !== null && s.distance_km !== undefined && <><span className="card-meta-dot">·</span><span>{s.distance_km.toFixed(1)} km away</span></>}
       </div>
 
@@ -102,7 +116,7 @@ export default function SchoolCard({ school: s }: { school: SchoolSummary }) {
         {s.has_sixth_form && <span className="badge badge-sixth">6th form</span>}
       </div>
 
-      <KeyMetric s={s} />
+      <KeyMetric s={s} benchmarks={benchmarks} />
     </div>
   )
 }

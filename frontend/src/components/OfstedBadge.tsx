@@ -14,18 +14,21 @@ const GRADE_CLASS: Record<string, string> = {
 }
 
 export default function OfstedBadge({ overall, date, leadership, quality }: Props) {
-  // Use the best available rating signal
-  const effectiveGrade = overall ?? leadership ?? quality ?? null
-
-  if (!effectiveGrade && !date) {
+  if (!overall && !leadership && !quality && !date) {
     return <span className="badge badge-uninspected">Not inspected</span>
   }
 
-  if (!effectiveGrade) {
-    return <span className="badge badge-new">Inspected (new framework)</span>
+  if (!overall) {
+    return (
+      <span
+        className="badge badge-new"
+        title="Ofsted's newer framework grades specific areas rather than always giving one overall rating."
+      >
+        New Ofsted framework
+      </span>
+    )
   }
 
-  const cls = GRADE_CLASS[effectiveGrade] ?? 'badge badge-new'
-  const label = overall ? effectiveGrade : `${effectiveGrade} (leadership)`
-  return <span className={cls}>{label}</span>
+  const cls = GRADE_CLASS[overall] ?? 'badge badge-new'
+  return <span className={cls}>{overall}</span>
 }

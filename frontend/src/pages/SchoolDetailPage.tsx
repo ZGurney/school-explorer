@@ -9,6 +9,7 @@ import OfstedBadge from '../components/OfstedBadge'
 import { useCompareContext } from '../context/CompareContext'
 import { useShortlistContext } from '../context/ShortlistContext'
 import { useSchool } from '../hooks/useSchools'
+import { GLOSSARY } from '../utils/glossary'
 
 const TABS = ['Overview', 'Academic results', 'Destinations', 'Context', 'History'] as const
 type Tab = typeof TABS[number]
@@ -32,6 +33,8 @@ export default function SchoolDetailPage() {
   const saved = shortlist.isSaved(data.urn)
   const dataYears = [data.ks2_year, data.ks4_year, data.ks5_year].filter(Boolean).sort()
   const dataYear = dataYears[dataYears.length - 1]
+  const showDestinations = data.phase !== 'Primary' || data.destinations_ks4_history.length > 0 || data.destinations_ks5_history.length > 0
+  const tabs = showDestinations ? TABS : TABS.filter(t => t !== 'Destinations')
 
   return (
     <div className="page" style={{ paddingTop: 20 }}>
@@ -50,7 +53,7 @@ export default function SchoolDetailPage() {
           )}
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-          <OfstedBadge overall={data.ofsted_overall} date={data.ofsted_date} />
+          <OfstedBadge overall={data.ofsted_overall} date={data.ofsted_date} leadership={data.ofsted_leadership} quality={data.ofsted_quality} />
           {data.is_selective && <span className="badge badge-selective">Selective</span>}
           <button
             className={`btn btn-sm ${saved ? 'btn-primary' : 'btn-ghost'}`}
@@ -68,16 +71,22 @@ export default function SchoolDetailPage() {
       </div>
 
       <div className="tabs">
-        {TABS.map(t => (
+        {tabs.map(t => (
           <button key={t} className={`tab-btn${tab === t ? ' active' : ''}`} onClick={() => setTab(t)}>
             {t}
           </button>
         ))}
       </div>
 
+      {!data.ofsted_overall && data.ofsted_date && (
+        <div className="info-banner">
+          <strong>Ofsted changed how it reports some inspections.</strong> {GLOSSARY.OfstedNewFramework}
+        </div>
+      )}
+
       {tab === 'Overview' && <OverviewTab school={data} />}
       {tab === 'Academic results' && <AcademicTab school={data} />}
-      {tab === 'Destinations' && <DestinationsTab school={data} />}
+      {tab === 'Destinations' && showDestinations && <DestinationsTab school={data} />}
       {tab === 'Context' && <ContextTab school={data} />}
       {tab === 'History' && <HistoryTab school={data} />}
     </div>

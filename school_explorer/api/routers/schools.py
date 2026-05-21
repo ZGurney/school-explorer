@@ -30,6 +30,7 @@ def _build_where(
     is_selective: Optional[bool],
     gender: Optional[str],
     faith_only: Optional[bool],
+    ofsted_rating: Optional[str],
     lat: Optional[float],
     lng: Optional[float],
     radius_km: float,
@@ -69,6 +70,11 @@ def _build_where(
             AND religious_character <> ''
             AND religious_character NOT IN ('None', 'Does not apply', 'No religious character')
         """)
+    if ofsted_rating == "good_or_better":
+        clauses.append("COALESCE(ofsted_overall, ofsted_quality, ofsted_leadership) IN ('Outstanding', 'Good')")
+    elif ofsted_rating in {"Outstanding", "Good", "Requires improvement", "Inadequate"}:
+        clauses.append("COALESCE(ofsted_overall, ofsted_quality, ofsted_leadership) = :ofsted_rating")
+        params["ofsted_rating"] = ofsted_rating
     if lat is not None and lng is not None:
         clauses.append("""
             lat IS NOT NULL AND lng IS NOT NULL AND
@@ -116,6 +122,7 @@ def list_schools(
     is_selective: Optional[bool] = Query(None),
     gender: Optional[str] = Query(None),
     faith_only: Optional[bool] = Query(None),
+    ofsted_rating: Optional[str] = Query(None),
     establishment_groups: Optional[str] = Query(None),
     lat: Optional[float] = Query(None),
     lng: Optional[float] = Query(None),
@@ -133,6 +140,7 @@ def list_schools(
         is_selective,
         gender,
         faith_only,
+        ofsted_rating,
         lat,
         lng,
         radius_km,

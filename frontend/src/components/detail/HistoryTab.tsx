@@ -3,6 +3,19 @@ import OfstedBadge from '../OfstedBadge'
 
 interface Props { school: SchoolDetail }
 
+function inspectionLabel(type: string | null) {
+  if (!type) return null
+  const labels: Record<string, string> = {
+    OS: 'Standard inspection',
+    SS: 'Short inspection',
+    RTI: 'Monitoring visit',
+  }
+  if (!labels[type] && import.meta.env.DEV) {
+    console.warn('Unknown inspection type:', type)
+  }
+  return labels[type] ?? type
+}
+
 export default function HistoryTab({ school: s }: Props) {
   if (s.inspections.length === 0) {
     return <p style={{ color: '#6b7280', marginTop: 20 }}>No inspection history available.</p>
@@ -22,9 +35,9 @@ export default function HistoryTab({ school: s }: Props) {
                 <span style={{ fontWeight: 600, fontSize: 15 }}>
                   {new Date(insp.inspection_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
                 </span>
-                {insp.inspection_type && (
+                {inspectionLabel(insp.inspection_type) && (
                   <span style={{ marginLeft: 8, fontSize: 12, color: '#6b7280', background: '#f3f4f6', padding: '2px 6px', borderRadius: 4 }}>
-                    {insp.inspection_type}
+                    {inspectionLabel(insp.inspection_type)}
                   </span>
                 )}
               </div>

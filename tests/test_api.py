@@ -52,7 +52,7 @@ class TestSchoolsListEndpoint:
             p["name"]
             for p in resp.json()["paths"]["/api/v1/schools"]["get"]["parameters"]
         }
-        assert {"faith_only", "lat", "lng", "radius_km", "establishment_groups"} <= params
+        assert {"faith_only", "lat", "lng", "radius_km", "establishment_groups", "ofsted_rating"} <= params
 
     def test_docs_reachable(self, client):
         resp = client.get("/docs")
