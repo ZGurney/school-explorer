@@ -28,18 +28,18 @@ export default function ShortlistPage() {
   const schools = queries.map(q => q.data).filter((s): s is SchoolDetail => Boolean(s))
 
   const addAllToCompare = () => {
-    schools.slice(0, 5).forEach(s => {
-      compare.add(s.urn, s.name)
-    })
+    schools.slice(0, 5).forEach(s => compare.add(s.urn, s.name))
     navigate(`/compare?urns=${schools.slice(0, 5).map(s => s.urn).join(',')}`)
   }
 
   return (
-    <div className="page" style={{ paddingTop: 24 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'flex-start', marginBottom: 20 }}>
+    <div className="page">
+      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'flex-start', marginBottom: 24 }}>
         <div>
-          <h1 style={{ fontSize: 26, fontWeight: 800, letterSpacing: '-0.4px' }}>My Shortlist</h1>
-          <p style={{ color: 'var(--gray-500)', fontSize: 14, marginTop: 4 }}>
+          <h1 style={{ fontFamily: 'var(--font-display)', fontOpticalSizing: 'auto', fontSize: 32, fontWeight: 700, letterSpacing: '-0.03em', color: 'var(--text)', marginBottom: 6 }}>
+            My Shortlist
+          </h1>
+          <p style={{ color: 'var(--text-muted)', fontSize: 14 }}>
             {saved.length === 0 ? 'Saved schools will appear here.' : `${saved.length} saved school${saved.length === 1 ? '' : 's'}`}
           </p>
         </div>
@@ -55,23 +55,23 @@ export default function ShortlistPage() {
         </div>
       )}
 
-      {saved.length > 0 && schools.length === 0 && <div className="loading">Loading shortlist...</div>}
+      {saved.length > 0 && schools.length === 0 && <div className="loading">Loading shortlist…</div>}
 
       <div className="shortlist-list">
         {schools.map(s => (
           <div key={s.urn} className="shortlist-item">
             <div>
               <Link to={`/schools/${s.urn}`} className="shortlist-name">{s.name}</Link>
-              <div className="card-meta" style={{ marginBottom: 0 }}>
+              <div style={{ fontSize: 12, color: 'var(--text-subtle)', marginTop: 3, display: 'flex', gap: 4, flexWrap: 'wrap' }}>
                 {s.la_name && <span>{s.la_name}</span>}
-                {s.phase && <><span className="card-meta-dot">·</span><span>{s.phase}</span></>}
-                {s.postcode && <><span className="card-meta-dot">·</span><span>{s.postcode}</span></>}
+                {s.phase && <><span>·</span><span>{s.phase}</span></>}
+                {s.postcode && <><span>·</span><span>{s.postcode}</span></>}
               </div>
             </div>
             <OfstedBadge overall={s.ofsted_overall} date={s.ofsted_date} leadership={s.ofsted_leadership} quality={s.ofsted_quality} />
             <div className="shortlist-metric"><KeyMetric s={s} /></div>
             <button className="btn btn-ghost btn-sm" onClick={() => compare.toggle(s.urn, s.name)}>
-              {compare.isSelected(s.urn) ? 'In compare' : 'Compare'}
+              {compare.isSelected(s.urn) ? '✓ In compare' : '+ Compare'}
             </button>
             <button className="btn btn-danger-ghost" onClick={() => remove(s.urn)}>Remove</button>
           </div>

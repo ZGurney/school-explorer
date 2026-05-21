@@ -12,23 +12,27 @@ export default function CompareBar() {
   return (
     <div className="compare-bar">
       <div className="compare-bar-schools">
-        <span style={{ fontSize: 13, color: 'rgba(255,255,255,.5)', marginRight: 4, flexShrink: 0 }}>
-          {selected.length}/5
-        </span>
+        <span className="compare-count">{selected.length}/5</span>
         {selected.map(s => (
           <span key={s.urn} className="compare-chip">
             {s.name}
-            <button onClick={() => remove(s.urn)} title="Remove">×</button>
+            <button onClick={() => remove(s.urn)} aria-label={`Remove ${s.name}`}>×</button>
           </span>
         ))}
       </div>
       <div className="compare-bar-actions">
-        {!canCompare && <span className="compare-hint">Add {2 - selected.length} more to compare</span>}
-        <button className="btn btn-ghost btn-sm" style={{ color: 'rgba(255,255,255,.6)', borderColor: 'rgba(255,255,255,.2)' }} onClick={clear}>
+        {!canCompare && (
+          <span className="compare-hint">Add {2 - selected.length} more to compare</span>
+        )}
+        <button
+          className="btn btn-ghost btn-sm"
+          style={{ color: 'rgba(255,255,255,.6)', borderColor: 'rgba(255,255,255,.18)' }}
+          onClick={clear}
+        >
           Clear
         </button>
         <button
-          className="btn-compare"
+          className="btn-compare-go"
           disabled={!canCompare}
           onClick={() => navigate(`/compare?urns=${selected.map(s => s.urn).join(',')}`)}
         >

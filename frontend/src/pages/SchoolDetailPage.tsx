@@ -5,7 +5,7 @@ import ContextTab from '../components/detail/ContextTab'
 import DestinationsTab from '../components/detail/DestinationsTab'
 import HistoryTab from '../components/detail/HistoryTab'
 import OverviewTab from '../components/detail/OverviewTab'
-import OfstedBadge from '../components/OfstedBadge'
+import OfstedBadge, { effectiveOfstedGrade, ofstedCssColor } from '../components/OfstedBadge'
 import { useCompareContext } from '../context/CompareContext'
 import { useShortlistContext } from '../context/ShortlistContext'
 import { useSchool } from '../hooks/useSchools'
@@ -25,7 +25,7 @@ export default function SchoolDetailPage() {
   if (isError || !data) return (
     <div className="page" style={{ paddingTop: 32 }}>
       <p className="error-msg">School not found.</p>
-      <Link to="/">← Back to search</Link>
+      <Link to="/" style={{ color: 'var(--brick)' }}>← Back to search</Link>
     </div>
   )
 
@@ -36,30 +36,39 @@ export default function SchoolDetailPage() {
   const showDestinations = data.phase !== 'Primary' || data.destinations_ks4_history.length > 0 || data.destinations_ks5_history.length > 0
   const tabs = showDestinations ? TABS : TABS.filter(t => t !== 'Destinations')
 
-  return (
-    <div className="page" style={{ paddingTop: 20 }}>
-      <Link to="/" style={{ fontSize: 13, color: 'var(--gray-500)' }}>← All schools</Link>
+  /* Ofsted colour drives the entire hero panel background */
+  const heroBg = ofstedCssColor(effectiveOfstedGrade(data.ofsted_overall, data.ofsted_quality, data.ofsted_leadership))
 
-      <div className="detail-header-bar">
-        <div>
-          <h1 style={{ fontSize: 26, fontWeight: 800, letterSpacing: '-0.4px' }}>{data.name}</h1>
-          <div style={{ color: 'var(--gray-500)', fontSize: 14, marginTop: 6 }}>
-            {[data.la_name, data.phase, data.postcode].filter(Boolean).join(' · ')}
-          </div>
-          {dataYear && (
-            <div style={{ color: 'var(--gray-400)', fontSize: 12, marginTop: 5 }}>
-              Data: {dataYear}
-            </div>
-          )}
+  return (
+    <div className="page">
+      {/* ── Dramatic Ofsted-coloured hero panel ─────────────── */}
+      <div className="detail-hero" style={{ background: heroBg }}>
+        <Link to="/" className="detail-hero-back">← All schools</Link>
+
+        <h1>{data.name}</h1>
+
+        <div className="detail-hero-meta">
+          {[data.la_name, data.phase, data.postcode].filter(Boolean).join(' · ')}
+          {dataYear && <span style={{ marginLeft: 12, opacity: .6, fontSize: 13 }}>Data: {dataYear}</span>}
         </div>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-          <OfstedBadge overall={data.ofsted_overall} date={data.ofsted_date} leadership={data.ofsted_leadership} quality={data.ofsted_quality} />
-          {data.is_selective && <span className="badge badge-selective">Selective</span>}
+
+        <div className="detail-hero-badges">
+          <OfstedBadge
+            overall={data.ofsted_overall}
+            date={data.ofsted_date}
+            leadership={data.ofsted_leadership}
+            quality={data.ofsted_quality}
+          />
+          {data.is_selective && <span className="badge badge--selective">Selective</span>}
+          {data.has_sixth_form && <span className="badge badge--sixth">Sixth form</span>}
+        </div>
+
+        <div className="detail-hero-actions">
           <button
             className={`btn btn-sm ${saved ? 'btn-primary' : 'btn-ghost'}`}
             onClick={() => shortlist.toggle(data.urn, data.name)}
           >
-            {saved ? 'Saved' : 'Save'}
+            {saved ? '♥ Saved' : '♡ Save to shortlist'}
           </button>
           <button
             className={`btn btn-sm ${selected ? 'btn-primary' : 'btn-ghost'}`}
@@ -70,6 +79,12 @@ export default function SchoolDetailPage() {
         </div>
       </div>
 
+      {!data.ofsted_overall && data.ofsted_date && (
+        <div className="info-banner">
+          <strong>Ofsted changed how it reports some inspections.</strong> {GLOSSARY.OfstedNewFramework}
+        </div>
+      )}
+
       <div className="tabs">
         {tabs.map(t => (
           <button key={t} className={`tab-btn${tab === t ? ' active' : ''}`} onClick={() => setTab(t)}>
@@ -78,17 +93,11 @@ export default function SchoolDetailPage() {
         ))}
       </div>
 
-      {!data.ofsted_overall && data.ofsted_date && (
-        <div className="info-banner">
-          <strong>Ofsted changed how it reports some inspections.</strong> {GLOSSARY.OfstedNewFramework}
-        </div>
-      )}
-
-      {tab === 'Overview' && <OverviewTab school={data} />}
-      {tab === 'Academic results' && <AcademicTab school={data} />}
-      {tab === 'Destinations' && showDestinations && <DestinationsTab school={data} />}
-      {tab === 'Context' && <ContextTab school={data} />}
-      {tab === 'History' && <HistoryTab school={data} />}
+      {tab === 'Overview'          && <OverviewTab school={data} />}
+      {tab === 'Academic results'  && <AcademicTab school={data} />}
+      {tab === 'Destinations'      && showDestinations && <DestinationsTab school={data} />}
+      {tab === 'Context'           && <ContextTab school={data} />}
+      {tab === 'History'           && <HistoryTab school={data} />}
     </div>
   )
 }

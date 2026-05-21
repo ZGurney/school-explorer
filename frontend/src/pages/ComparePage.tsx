@@ -141,8 +141,8 @@ export default function ComparePage() {
     <div className="page" style={{ paddingTop: 20 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
         <div>
-          <Link to="/" style={{ fontSize: 13, color: 'var(--gray-500)' }}>← Back to search</Link>
-          <h1 style={{ marginTop: 8, fontSize: 24, fontWeight: 800, letterSpacing: '-0.4px' }}>Compare schools</h1>
+          <Link to="/" style={{ fontSize: 13, color: 'var(--text-muted)' }}>← Back to search</Link>
+          <h1 style={{ marginTop: 8, fontFamily: 'var(--font-display)', fontOpticalSizing: 'auto', fontSize: 28, fontWeight: 700, letterSpacing: '-0.03em', color: 'var(--text)' }}>Compare schools</h1>
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
           <button className="btn btn-ghost" disabled={urns.length === 0} onClick={copyLink}>{copied ? 'Copied!' : 'Copy link'}</button>
@@ -167,7 +167,7 @@ export default function ComparePage() {
       {isLoading && <div className="loading">Loading…</div>}
 
       {schools && schools.length >= 2 && (
-        <div style={{ overflowX: 'auto', background: '#fff', borderRadius: 'var(--radius-lg)', border: '1px solid var(--gray-200)', boxShadow: 'var(--shadow-sm)' }}>
+        <div style={{ overflowX: 'auto', background: 'var(--surface)', borderRadius: 'var(--r-lg)', border: '1px solid var(--border-light)', boxShadow: 'var(--shadow-sm)' }}>
           <table className="compare-table">
             <thead>
               <tr>

@@ -17,7 +17,7 @@ import LabelTooltip from '../Tooltip'
 interface Props { school: SchoolDetail }
 
 function SectionHeader({ title }: { title: string }) {
-  return <h3 style={{ marginTop: 24, marginBottom: 12, borderBottom: '1px solid #e5e7eb', paddingBottom: 6 }}>{title}</h3>
+  return <h3 style={{ marginTop: 24, marginBottom: 12, borderBottom: '1px solid var(--border-light)', paddingBottom: 6, fontFamily: 'var(--font-display)', fontOpticalSizing: 'auto' }}>{title}</h3>
 }
 
 export default function AcademicTab({ school: s }: Props) {

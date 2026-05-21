@@ -41,7 +41,7 @@ export default function HistoryTab({ school: s }: Props) {
                   </span>
                 )}
               </div>
-              <OfstedBadge overall={insp.overall_effectiveness_legacy} date={insp.inspection_date} size="sm" />
+              <OfstedBadge overall={insp.overall_effectiveness_legacy} date={insp.inspection_date} />
             </div>
 
             {(insp.quality_of_education || insp.behaviour_attitudes || insp.personal_development || insp.leadership_management) && (

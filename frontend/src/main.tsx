@@ -23,16 +23,18 @@ function App() {
     <>
       <nav className="topbar">
         <div className="topbar-inner">
-          <Link to="/" className="topbar-brand" style={{ textDecoration: 'none' }}>
-            London <span>School Explorer</span>
+          {/* Brand: Fraunces serif, brick accent on "School Explorer" */}
+          <Link to="/" className="topbar-brand">
+            London <em>School Explorer</em>
           </Link>
           <div className="topbar-nav">
-            <Link to="/" className="btn btn-ghost btn-sm">Search</Link>
-            <Link to="/dashboard" className="btn btn-ghost btn-sm">Rankings</Link>
-            <Link to="/shortlist" className="btn btn-ghost btn-sm">
-              Shortlist{saved.length > 0 && <span className="nav-count">{saved.length}</span>}
+            <Link to="/" className="nav-link">Search</Link>
+            <Link to="/dashboard" className="nav-link">Rankings</Link>
+            <Link to="/shortlist" className="nav-link">
+              Shortlist
+              {saved.length > 0 && <span className="nav-count">{saved.length}</span>}
             </Link>
-            <Link to="/compare" className="btn btn-ghost btn-sm">Compare</Link>
+            <Link to="/compare" className="nav-link">Compare</Link>
           </div>
         </div>
       </nav>

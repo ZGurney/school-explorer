@@ -10,14 +10,14 @@ interface Props { school: SchoolDetail }
 function Row({ label, children }: { label: React.ReactNode; children: React.ReactNode }) {
   return (
     <tr>
-      <td style={{ color: '#6b7280', paddingRight: 16, paddingBottom: 6, whiteSpace: 'nowrap', verticalAlign: 'top' }}>{label}</td>
+      <td style={{ color: 'var(--text-muted)', paddingRight: 16, paddingBottom: 6, whiteSpace: 'nowrap', verticalAlign: 'top' }}>{label}</td>
       <td style={{ paddingBottom: 6 }}>{children}</td>
     </tr>
   )
 }
 
 function AvgValue({ value, suffix = '' }: { value: number | null | undefined; suffix?: string }) {
-  if (value === null || value === undefined) return <span style={{ color: '#9ca3af' }}>–</span>
+  if (value === null || value === undefined) return <span style={{ color: 'var(--text-subtle)' }}>–</span>
   return <>{value.toFixed(suffix ? 0 : 1)}{suffix}</>
 }
 
@@ -32,11 +32,11 @@ function StatRow({ label, tip, value, avg, suffix = '', suppressed, decimals }: 
 }) {
   return (
     <tr>
-      <td style={{ color: '#6b7280', paddingRight: 16, paddingBottom: 6, whiteSpace: 'nowrap', verticalAlign: 'top' }}>
+      <td style={{ color: 'var(--text-muted)', paddingRight: 16, paddingBottom: 6, whiteSpace: 'nowrap', verticalAlign: 'top' }}>
         {tip ? <Tooltip text={tip}>{label}</Tooltip> : label}
       </td>
       <td style={{ paddingBottom: 6, textAlign: 'right' }}><StatValue value={value} suppressed={suppressed} suffix={suffix} decimals={decimals} /></td>
-      <td style={{ paddingBottom: 6, textAlign: 'right', color: '#6b7280' }}><AvgValue value={avg} suffix={suffix} /></td>
+      <td style={{ paddingBottom: 6, textAlign: 'right', color: 'var(--text-muted)' }}><AvgValue value={avg} suffix={suffix} /></td>
     </tr>
   )
 }
@@ -127,7 +127,7 @@ export default function OverviewTab({ school: s }: Props) {
         <div style={{ marginBottom: 12 }}>
           <OfstedBadge overall={s.ofsted_overall} date={s.ofsted_date} />
           {s.ofsted_date && (
-            <span style={{ marginLeft: 8, color: '#6b7280', fontSize: 13 }}>
+            <span style={{ marginLeft: 8, color: 'var(--text-muted)', fontSize: 13 }}>
               Inspected {new Date(s.ofsted_date).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}
             </span>
           )}
@@ -148,9 +148,9 @@ export default function OverviewTab({ school: s }: Props) {
         <table style={{ borderCollapse: 'collapse', width: '100%' }}>
           <thead>
             <tr>
-              <th style={{ textAlign: 'left', color: '#6b7280', fontSize: 12, fontWeight: 600, paddingBottom: 6 }}>Metric</th>
-              <th style={{ textAlign: 'right', color: '#6b7280', fontSize: 12, fontWeight: 600, paddingBottom: 6 }}>School</th>
-              <th style={{ textAlign: 'right', color: '#6b7280', fontSize: 12, fontWeight: 600, paddingBottom: 6 }}>London avg</th>
+              <th style={{ textAlign: 'left', color: 'var(--text-muted)', fontSize: 12, fontWeight: 600, paddingBottom: 6 }}>Metric</th>
+              <th style={{ textAlign: 'right', color: 'var(--text-muted)', fontSize: 12, fontWeight: 600, paddingBottom: 6 }}>School</th>
+              <th style={{ textAlign: 'right', color: 'var(--text-muted)', fontSize: 12, fontWeight: 600, paddingBottom: 6 }}>London avg</th>
             </tr>
           </thead>
           <tbody>
