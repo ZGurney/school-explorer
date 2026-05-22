@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Heart } from 'lucide-react'
+import { Heart, MapPin } from 'lucide-react'
 import type { SchoolSummary } from '../api/types'
 import { useCompareContext } from '../context/CompareContext'
 import { useShortlistContext } from '../context/ShortlistContext'
@@ -81,14 +81,28 @@ function KeyMetric({ s }: { s: SchoolSummary }) {
   return null
 }
 
-export default function SchoolCard({ school: s }: { school: SchoolSummary }) {
+interface Props {
+  school: SchoolSummary
+  mapSelected?: boolean
+  onMapFocus?: (school: SchoolSummary) => void
+}
+
+export default function SchoolCard({ school: s, mapSelected = false, onMapFocus }: Props) {
   const { toggle, isSelected } = useCompareContext()
   const shortlist = useShortlistContext()
   const selected = isSelected(s.urn)
   const saved = shortlist.isSaved(s.urn)
 
   return (
-    <div className={`school-card${selected ? ' in-compare' : ''}`}>
+    <div
+      className={`school-card${selected ? ' in-compare' : ''}${mapSelected ? ' map-selected' : ''}`}
+      onClick={e => {
+        if (!onMapFocus) return
+        const target = e.target as HTMLElement
+        if (target.closest('a, button, input, select')) return
+        onMapFocus(s)
+      }}
+    >
       {/* Iconic Ofsted quality band — falls back to sub-grades for the new framework */}
       <div className={`card-band ${ofstedBandClass(effectiveOfstedGrade(s.ofsted_overall, s.ofsted_quality, s.ofsted_leadership))}`} aria-hidden="true" />
 
@@ -111,6 +125,15 @@ export default function SchoolCard({ school: s }: { school: SchoolSummary }) {
             >
               {selected ? '✓' : '+'} Compare
             </button>
+            {onMapFocus && (
+              <button
+                className="btn-icon"
+                onClick={() => onMapFocus(s)}
+                aria-label={`Show ${s.name} on map`}
+              >
+                <MapPin size={12} strokeWidth={2.5} /> Map
+              </button>
+            )}
           </div>
         </div>
 

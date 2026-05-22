@@ -1,11 +1,20 @@
 import { useQuery } from '@tanstack/react-query'
 import api from '../api/client'
-import type { BenchmarkSummary, Borough, PaginatedSchools, SchoolDetail, SchoolFilters } from '../api/types'
+import type { BenchmarkSummary, Borough, PaginatedSchools, SchoolDetail, SchoolFilters, SchoolMapResponse } from '../api/types'
 
 export function useSchools(filters: SchoolFilters) {
   return useQuery<PaginatedSchools>({
     queryKey: ['schools', filters],
     queryFn: () => api.get('/schools', { params: filters }).then(r => r.data),
+  })
+}
+
+export function useSchoolMapPoints(filters: SchoolFilters, enabled = true, withinRadius = false) {
+  const { page, page_size, sort_by, ...mapFilters } = filters
+  return useQuery<SchoolMapResponse>({
+    queryKey: ['schools-map', mapFilters, withinRadius],
+    queryFn: () => api.get('/schools/map', { params: { ...mapFilters, within_radius: withinRadius || undefined } }).then(r => r.data),
+    enabled,
   })
 }
 

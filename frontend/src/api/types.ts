@@ -196,6 +196,35 @@ export interface PaginatedSchools {
   results: SchoolSummary[]
 }
 
+export interface SchoolMapPoint {
+  urn: number
+  name: string
+  la_name: string | null
+  establishment_group: string | null
+  phase: string | null
+  is_selective: boolean
+  has_sixth_form: boolean
+  postcode: string | null
+  lat: number
+  lng: number
+  ofsted_date: string | null
+  ofsted_overall: string | null
+  ofsted_quality: string | null
+  ofsted_leadership: string | null
+  attainment_8: number | null
+  avg_points_per_alevel_entry: number | null
+  pct_expected_rwm: number | null
+  total_pupils: number | null
+  distance_km: number | null
+}
+
+export interface SchoolMapResponse {
+  total: number
+  limit: number
+  truncated: boolean
+  results: SchoolMapPoint[]
+}
+
 export interface Borough {
   la_code: string
   la_name: string

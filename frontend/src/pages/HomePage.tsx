@@ -1,8 +1,10 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Filter, MapPin, Search, X } from 'lucide-react'
+import { Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react'
+import { Filter, List, Map, MapPin, Search, X } from 'lucide-react'
 import SchoolCard from '../components/SchoolCard'
-import { useBoroughs, useSchools } from '../hooks/useSchools'
+import { useBoroughs, useSchoolMapPoints, useSchools } from '../hooks/useSchools'
 import type { SchoolFilters } from '../api/types'
+
+const SchoolMap = lazy(() => import('../components/SchoolMap'))
 
 const PHASES = [
   { value: '', label: 'All ages' },
@@ -60,12 +62,22 @@ export default function HomePage() {
   const [postcodeLoading, setPostcodeLoading] = useState(false)
   const [childStage, setChildStage] = useState('')
   const [filtersOpen, setFiltersOpen] = useState(false)
+  const [viewMode, setViewMode] = useState<'list' | 'map'>('list')
+  const [selectedMapUrn, setSelectedMapUrn] = useState<number | null>(null)
+  const [mapWithinRadius, setMapWithinRadius] = useState(false)
 
   const { data, isLoading, isError } = useSchools(filters)
+  const hasLocation = filters.lat !== undefined && filters.lng !== undefined
+  const { data: mapData, isLoading: mapLoading } = useSchoolMapPoints(filters, viewMode === 'map', mapWithinRadius && hasLocation)
   const { data: boroughs } = useBoroughs()
+  const mapPoints = mapData?.results ?? []
+  const mapNearbyCount = hasLocation
+    ? mapPoints.filter(s => s.distance_km != null && s.distance_km <= (filters.radius_km ?? 2)).length
+    : 0
 
   const update = useCallback((patch: Partial<SchoolFilters>) => {
     setFilters(f => ({ ...f, ...patch, page: 1 }))
+    setSelectedMapUrn(null)
   }, [])
 
   useEffect(() => {
@@ -112,6 +124,7 @@ export default function HomePage() {
     setPostcodeInput('')
     setPostcodeLabel('')
     setPostcodeError('')
+    setMapWithinRadius(false)
     update({ lat: undefined, lng: undefined, radius_km: undefined })
   }
 
@@ -122,6 +135,7 @@ export default function HomePage() {
     setPostcodeLabel('')
     setPostcodeError('')
     setChildStage('')
+    setMapWithinRadius(false)
     setFiltersOpen(false)
   }
 
@@ -280,6 +294,14 @@ export default function HomePage() {
             {data && (
               <span className="results-count">{data.total.toLocaleString()} school{data.total !== 1 ? 's' : ''}</span>
             )}
+            <div className="view-toggle" aria-label="Choose results view">
+              <button type="button" className={viewMode === 'list' ? 'active' : ''} onClick={() => setViewMode('list')}>
+                <List size={14} /> List
+              </button>
+              <button type="button" className={viewMode === 'map' ? 'active' : ''} onClick={() => setViewMode('map')}>
+                <Map size={14} /> Map
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -290,6 +312,15 @@ export default function HomePage() {
         Filters
         {activeChips.length > 0 && <span className="nav-count">{activeChips.length}</span>}
       </button>
+
+      <div className="mobile-view-toggle" aria-label="Choose results view">
+        <button type="button" className={viewMode === 'list' ? 'active' : ''} onClick={() => setViewMode('list')}>
+          <List size={14} /> List
+        </button>
+        <button type="button" className={viewMode === 'map' ? 'active' : ''} onClick={() => setViewMode('map')}>
+          <Map size={14} /> Map
+        </button>
+      </div>
 
       {filtersOpen && <button className="filter-backdrop" aria-label="Close filters" onClick={() => setFiltersOpen(false)} />}
 
@@ -383,13 +414,62 @@ export default function HomePage() {
                 <p>No schools match these filters.</p>
                 <button className="btn btn-primary" onClick={clearAll}>Clear all filters</button>
               </div>
+            ) : viewMode === 'map' ? (
+              <div className="school-map-layout">
+                <div className="school-map-results">
+                  <div className="school-map-results-head">
+                    <strong>{filters.lat !== undefined ? 'Nearest matches' : 'Matching schools'}</strong>
+                    <span>
+                      Showing {data.results.length} list card{data.results.length === 1 ? '' : 's'}
+                      {mapData && hasLocation
+                        ? `; map shows ${mapData.total.toLocaleString()} London school${mapData.total === 1 ? '' : 's'}${mapWithinRadius ? '' : `, ${mapNearbyCount.toLocaleString()} within ${(filters.radius_km ?? 2).toLocaleString()} km`}.`
+                        : mapData
+                          ? `; map shows ${mapData.total.toLocaleString()} London school${mapData.total === 1 ? '' : 's'}.`
+                          : '.'}
+                    </span>
+                  </div>
+                  <div className="cards-grid cards-grid--map">
+                    {data.results.map(s => (
+                      <SchoolCard
+                        key={s.urn}
+                        school={s}
+                        mapSelected={selectedMapUrn === s.urn}
+                        onMapFocus={() => setSelectedMapUrn(s.urn)}
+                      />
+                    ))}
+                  </div>
+                  {data.total > (filters.page_size ?? 25) && (
+                    <div className="pagination pagination--compact">
+                      <button className="btn btn-ghost btn-sm" disabled={currentPage === 1} onClick={() => setFilters(f => ({ ...f, page: (f.page ?? 1) - 1 }))}>← Prev</button>
+                      <span className="pagination-info">Page {currentPage} of {totalPages}</span>
+                      <button className="btn btn-ghost btn-sm" disabled={currentPage >= totalPages} onClick={() => setFilters(f => ({ ...f, page: (f.page ?? 1) + 1 }))}>Next →</button>
+                    </div>
+                  )}
+                </div>
+                <Suspense fallback={<div className="school-map-placeholder">Loading map…</div>}>
+                  <SchoolMap
+                    points={mapPoints}
+                    mapTotal={mapData?.total ?? 0}
+                    truncated={mapData?.truncated ?? false}
+                    filters={filters}
+                    postcodeLabel={postcodeLabel}
+                    isLoading={mapLoading}
+                    hasLocation={hasLocation}
+                    nearbyCount={mapNearbyCount}
+                    withinRadius={mapWithinRadius && hasLocation}
+                    onWithinRadiusChange={setMapWithinRadius}
+                    selectedUrn={selectedMapUrn}
+                    onSelect={setSelectedMapUrn}
+                  />
+                </Suspense>
+              </div>
             ) : (
               <div className="cards-grid">
                 {data.results.map(s => <SchoolCard key={s.urn} school={s} />)}
               </div>
             )}
 
-            {data.total > (filters.page_size ?? 25) && (
+            {viewMode === 'list' && data.total > (filters.page_size ?? 25) && (
               <div className="pagination">
                 <button className="btn btn-ghost btn-sm" disabled={currentPage === 1} onClick={() => setFilters(f => ({ ...f, page: (f.page ?? 1) - 1 }))}>← Prev</button>
                 <span className="pagination-info">Page {currentPage} of {totalPages}</span>

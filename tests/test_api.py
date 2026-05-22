@@ -54,6 +54,15 @@ class TestSchoolsListEndpoint:
         }
         assert {"faith_only", "lat", "lng", "radius_km", "establishment_groups", "ofsted_rating"} <= params
 
+    def test_schools_map_openapi_includes_explicit_radius_filter(self, client):
+        resp = client.get("/openapi.json")
+        assert resp.status_code == 200
+        params = {
+            p["name"]
+            for p in resp.json()["paths"]["/api/v1/schools/map"]["get"]["parameters"]
+        }
+        assert {"lat", "lng", "radius_km", "within_radius"} <= params
+
     def test_docs_reachable(self, client):
         resp = client.get("/docs")
         assert resp.status_code == 200

@@ -255,6 +255,37 @@ class PaginatedSchools(BaseModel):
     results: list[SchoolSummary]
 
 
+class SchoolMapPoint(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    urn: int
+    name: str
+    la_name: Optional[str] = None
+    establishment_group: Optional[str] = None
+    phase: Optional[str] = None
+    is_selective: bool = False
+    has_sixth_form: bool = False
+    postcode: Optional[str] = None
+    lat: float
+    lng: float
+    ofsted_date: Optional[date] = None
+    ofsted_overall: Optional[str] = None
+    ofsted_quality: Optional[str] = None
+    ofsted_leadership: Optional[str] = None
+    attainment_8: Optional[float] = None
+    avg_points_per_alevel_entry: Optional[float] = None
+    pct_expected_rwm: Optional[float] = None
+    total_pupils: Optional[int] = None
+    distance_km: Optional[float] = None
+
+
+class SchoolMapResponse(BaseModel):
+    total: int
+    limit: int
+    truncated: bool
+    results: list[SchoolMapPoint]
+
+
 class BenchmarkSummary(BaseModel):
     ks2_pct_expected_rwm: Optional[float] = None
     ks4_attainment_8: Optional[float] = None
